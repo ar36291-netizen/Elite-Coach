@@ -247,6 +247,12 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...onboarding, dietPreference }),
       });
+      
+      if (!resp.ok) {
+        const errText = await resp.text();
+        throw new Error(`Server returned ${resp.status}: ${errText}`);
+      }
+
       const data = await resp.json();
       if (data.plan) {
         setPlan(data.plan);
@@ -269,9 +275,12 @@ export default function App() {
             weightAtTime: weightVal,
           },
         });
+      } else {
+        throw new Error("Invalid response from server: " + JSON.stringify(data));
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Onboarding Plan generation failed:", err);
+      alert("Failed to build plan: " + err.message + "\n\nPlease try again or check your server logs.");
     } finally {
       setIsLoading(false);
     }
