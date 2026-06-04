@@ -444,22 +444,13 @@ app.post("/api/generate-plan", async (req, res) => {
       Provide fully realistic Indian recipes (e.g., using Paneer, Roti, Dal, Poha, Makhana, Khichdi, or egg/chicken equivalents for mixed diets) matching the guidelines. Set sets and reps according to their experience (${experience}). Avoid lists of exercises that violate their physical limitations (${limitations}).
     `;
 
-    let response;
-    try {
-      response = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
-        contents: prompt,
-        config: {
-          responseMimeType: "application/json",
-        }
-      });
-    } catch (firstErr: any) {
-      console.warn("gemini-1.5-flash failed, falling back to gemini-pro...", firstErr);
-      response = await ai.models.generateContent({
-        model: "gemini-pro",
-        contents: prompt
-      });
-    }
+    const response = await ai.models.generateContent({
+      model: "gemini-1.5-flash",
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+      }
+    });
 
     const textStr = response.text || "";
     const cleanJson = textStr.replace(/```json/g, "").replace(/```/g, "").trim();
@@ -531,18 +522,10 @@ app.post("/api/log-feedback", async (req, res) => {
       - Do NOT output any JSON wrapping. Just output the coach's direct note back as plain text.
     `;
 
-    let response;
-    try {
-      response = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
-        contents: prompt
-      });
-    } catch (firstErr: any) {
-      response = await ai.models.generateContent({
-        model: "gemini-pro",
-        contents: prompt
-      });
-    }
+    const response = await ai.models.generateContent({
+      model: "gemini-1.5-flash",
+      contents: prompt
+    });
 
     return res.json({ feedback: response.text || defaultFeedback });
   } catch (err: any) {
