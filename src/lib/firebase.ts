@@ -8,6 +8,23 @@ import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore, doc, getDocFromServer } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
+declare global {
+  interface ImportMetaEnv {
+    readonly VITE_FIREBASE_API_KEY?: string;
+    readonly VITE_FIREBASE_AUTH_DOMAIN?: string;
+    readonly VITE_FIREBASE_PROJECT_ID?: string;
+    readonly VITE_FIREBASE_FIRESTORE_DB_ID?: string;
+    readonly VITE_FIREBASE_STORAGE_BUCKET?: string;
+    readonly VITE_FIREBASE_MESSAGING_SENDER_ID?: string;
+    readonly VITE_FIREBASE_APP_ID?: string;
+    readonly VITE_FIREBASE_MEASUREMENT_ID?: string;
+  }
+
+  interface ImportMeta {
+    readonly env: ImportMetaEnv;
+  }
+}
+
 // Construct config with override from environment variables for production setups like Vercel
 // Detect sandbox domain to decide default config
 const isSandbox = typeof window !== 'undefined' && (
@@ -29,14 +46,14 @@ const customConfig = {
 };
 
 const activeConfig = {
-  apiKey: (import.meta as any).env.VITE_FIREBASE_API_KEY || (!isSandbox ? customConfig.apiKey : firebaseConfig?.apiKey),
-  authDomain: (import.meta as any).env.VITE_FIREBASE_AUTH_DOMAIN || (!isSandbox ? customConfig.authDomain : firebaseConfig?.authDomain),
-  projectId: (import.meta as any).env.VITE_FIREBASE_PROJECT_ID || (!isSandbox ? customConfig.projectId : firebaseConfig?.projectId),
-  firestoreDatabaseId: (import.meta as any).env.VITE_FIREBASE_FIRESTORE_DB_ID || (!isSandbox ? customConfig.firestoreDatabaseId : ((firebaseConfig as any)?.firestoreDatabaseId || '(default)')),
-  storageBucket: (import.meta as any).env.VITE_FIREBASE_STORAGE_BUCKET || (!isSandbox ? customConfig.storageBucket : firebaseConfig?.storageBucket),
-  messagingSenderId: (import.meta as any).env.VITE_FIREBASE_MESSAGING_SENDER_ID || (!isSandbox ? customConfig.messagingSenderId : firebaseConfig?.messagingSenderId),
-  appId: (import.meta as any).env.VITE_FIREBASE_APP_ID || (!isSandbox ? customConfig.appId : firebaseConfig?.appId),
-  measurementId: (import.meta as any).env.VITE_FIREBASE_MEASUREMENT_ID || (!isSandbox ? customConfig.measurementId : firebaseConfig?.measurementId),
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || (!isSandbox ? customConfig.apiKey : firebaseConfig?.apiKey),
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || (!isSandbox ? customConfig.authDomain : firebaseConfig?.authDomain),
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || (!isSandbox ? customConfig.projectId : firebaseConfig?.projectId),
+  firestoreDatabaseId: import.meta.env.VITE_FIREBASE_FIRESTORE_DB_ID || (!isSandbox ? customConfig.firestoreDatabaseId : ((firebaseConfig as any)?.firestoreDatabaseId || '(default)')),
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || (!isSandbox ? customConfig.storageBucket : firebaseConfig?.storageBucket),
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || (!isSandbox ? customConfig.messagingSenderId : firebaseConfig?.messagingSenderId),
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || (!isSandbox ? customConfig.appId : firebaseConfig?.appId),
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || (!isSandbox ? customConfig.measurementId : firebaseConfig?.measurementId),
 };
 
 export const isFirebaseConfigured = 
