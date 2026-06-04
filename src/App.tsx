@@ -129,6 +129,28 @@ export default function App() {
             }
           } catch (err) {
             console.error("Firestore loading failure:", err);
+            // Firebase threw an error (likely permission denied), fallback to local storage
+            const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (cached) {
+              try {
+                const parsed = JSON.parse(cached);
+                if (parsed.onboarding) setOnboarding(parsed.onboarding);
+                if (parsed.isOnboarded !== undefined) setIsOnboarded(parsed.isOnboarded);
+                if (parsed.plan) setPlan(parsed.plan);
+                if (parsed.dailyLogs) setDailyLogs(parsed.dailyLogs);
+                if (parsed.streak !== undefined) setStreak(parsed.streak);
+                if (parsed.selectedTab) setSelectedTab(parsed.selectedTab);
+              } catch (e) {
+                console.error("Local storage fallback parsing error in catch block:", e);
+              }
+            } else {
+              // Reset state to prompt onboarding for new remote credentials
+              setOnboarding(initialOnboarding);
+              setIsOnboarded(false);
+              setPlan(null);
+              setDailyLogs({});
+              setStreak(4);
+            }
           } finally {
             setTimeout(() => {
               isFetchingRef.current = false;
