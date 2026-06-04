@@ -1,0 +1,54 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile containing onboarding answers, fitness plan, and progress logs",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The firebase auth user ID"
+        },
+        "email": {
+          "type": "string",
+          "description": "Associated user registration email"
+        },
+        "isOnboarded": {
+          "type": "boolean",
+          "description": "Flag to skip the intake questionnaire and show the athlete panel"
+        },
+        "onboarding": {
+          "type": "object",
+          "description": "Onboarding demographic measurements"
+        },
+        "plan": {
+          "type": "object",
+          "description": "The active 4-week training and nutrition schedule"
+        },
+        "dailyLogs": {
+          "type": "object",
+          "description": "Calendar daily activity logging indices keyed by YYYY-MM-DD"
+        },
+        "streak": {
+          "type": "number",
+          "description": "Current transformation streak length"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "email"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Stores personalized progress logs, biometrics, and plans for each authenticated user"
+    }
+  }
+}

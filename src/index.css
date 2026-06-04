@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Inter", sans-serif;
+  --font-sans: "Inter", sans-serif;
+  
+  --color-brand-primary: #0f172a; /* Slate 900 */
+  --color-brand-accent: #10b981; /* Emerald 500 */
+  --color-brand-accent-red: #f97316; /* Orange 500 */
+  --color-brand-accent-blue: #0284c7; /* Sky 600 */
+  --color-brand-background: #f8fafc; /* Slate 50 */
+  --color-brand-card: #ffffff;
+}
+
+@layer utilities {
+  /* Override neo-brutalist utility helper classes to convert them to clean "High Density" elements seamlessly */
+  .neo-brutalist-border {
+    border: 1px solid #e2e8f0; /* border-slate-200 */
+    border-radius: 12px; /* rounded-xl */
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+  }
+  
+  .neo-brutalist-button {
+    border: 1px solid #cbd5e1; /* border-slate-300 */
+    border-radius: 8px; /* rounded-lg */
+    background-color: #ffffff;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+  }
+  
+  .neo-brutalist-button:active {
+    transform: scale(0.98);
+    background-color: #f1f5f9;
+  }
+  
+  .neo-shadow {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1); /* shadow-sm */
+    border-radius: 12px; /* rounded-xl */
+  }
+
+  .neo-shadow-active {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transform: scale(0.985);
+  }
+
+  .neo-border-sm {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px; /* rounded-lg */
+  }
+
+  .neo-button-sm-active:active {
+    transform: scale(0.98);
+  }
+}
+
+body {
+  background-color: #f8fafc; /* slate-50 */
+  color: #0f172a; /* slate-900 */
+  font-family: "Inter", sans-serif;
+}

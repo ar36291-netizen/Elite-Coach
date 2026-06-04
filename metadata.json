@@ -1,0 +1,6 @@
+{
+  "name": "Elite Fitness",
+  "description": "Personalized Indian-friendly fitness and nutrition planner with an adaptive AI coach.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
