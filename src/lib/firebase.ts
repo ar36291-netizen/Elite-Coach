@@ -8,11 +8,23 @@ import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore, doc, getDocFromServer } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
+// Construct config with override from environment variables for production setups like Vercel
+const activeConfig = {
+  apiKey: (import.meta as any).env.VITE_FIREBASE_API_KEY || firebaseConfig?.apiKey,
+  authDomain: (import.meta as any).env.VITE_FIREBASE_AUTH_DOMAIN || firebaseConfig?.authDomain,
+  projectId: (import.meta as any).env.VITE_FIREBASE_PROJECT_ID || firebaseConfig?.projectId,
+  firestoreDatabaseId: (import.meta as any).env.VITE_FIREBASE_FIRESTORE_DB_ID || (firebaseConfig as any)?.firestoreDatabaseId || '(default)',
+  storageBucket: (import.meta as any).env.VITE_FIREBASE_STORAGE_BUCKET || firebaseConfig?.storageBucket,
+  messagingSenderId: (import.meta as any).env.VITE_FIREBASE_MESSAGING_SENDER_ID || firebaseConfig?.messagingSenderId,
+  appId: (import.meta as any).env.VITE_FIREBASE_APP_ID || firebaseConfig?.appId,
+  measurementId: (import.meta as any).env.VITE_FIREBASE_MEASUREMENT_ID || firebaseConfig?.measurementId,
+};
+
 export const isFirebaseConfigured = 
-  firebaseConfig && 
-  firebaseConfig.apiKey && 
-  firebaseConfig.apiKey !== 'PLACEHOLDER' && 
-  firebaseConfig.projectId !== 'PLACEHOLDER';
+  activeConfig && 
+  activeConfig.apiKey && 
+  activeConfig.apiKey !== 'PLACEHOLDER' && 
+  activeConfig.projectId !== 'PLACEHOLDER';
 
 let app;
 let dbInstance: Firestore;
@@ -20,10 +32,10 @@ let authInstance: Auth;
 
 if (isFirebaseConfigured) {
   try {
-    app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+    app = getApps().length === 0 ? initializeApp(activeConfig) : getApp();
     
     // In Firebase SDK v9/v10+, we supply the database ID to support multi-database setups
-    const dbId = (firebaseConfig as any).firestoreDatabaseId || '(default)';
+    const dbId = activeConfig.firestoreDatabaseId || '(default)';
     dbInstance = getFirestore(app, dbId);
     authInstance = getAuth(app);
     
