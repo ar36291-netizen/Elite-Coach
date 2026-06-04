@@ -444,13 +444,38 @@ app.post("/api/generate-plan", async (req, res) => {
       Provide fully realistic Indian recipes (e.g., using Paneer, Roti, Dal, Poha, Makhana, Khichdi, or egg/chicken equivalents for mixed diets) matching the guidelines. Set sets and reps according to their experience (${experience}). Avoid lists of exercises that violate their physical limitations (${limitations}).
     `;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
+    const modelsToTry = [
+      "gemini-2.5-flash",
+      "gemini-2.0-flash",
+      "gemini-1.5-flash",
+      "gemini-1.5-flash-8b",
+      "gemini-1.5-pro",
+      "gemini-1.0-pro",
+      "gemini-pro"
+    ];
+
+    let response: any = null;
+    let lastError: any = null;
+
+    for (const model of modelsToTry) {
+      try {
+        response = await ai.models.generateContent({
+          model: model,
+          contents: prompt,
+          config: {
+            responseMimeType: "application/json",
+          }
+        });
+        break; // Success!
+      } catch (err: any) {
+        lastError = err;
+        console.warn(`Model ${model} failed, trying next...`);
       }
-    });
+    }
+
+    if (!response) {
+      throw lastError;
+    }
 
     const textStr = response.text || "";
     const cleanJson = textStr.replace(/```json/g, "").replace(/```/g, "").trim();
@@ -522,10 +547,34 @@ app.post("/api/log-feedback", async (req, res) => {
       - Do NOT output any JSON wrapping. Just output the coach's direct note back as plain text.
     `;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
-      contents: prompt
-    });
+    const modelsToTry = [
+      "gemini-2.5-flash",
+      "gemini-2.0-flash",
+      "gemini-1.5-flash",
+      "gemini-1.5-flash-8b",
+      "gemini-1.5-pro",
+      "gemini-1.0-pro",
+      "gemini-pro"
+    ];
+
+    let response: any = null;
+    let lastError: any = null;
+
+    for (const model of modelsToTry) {
+      try {
+        response = await ai.models.generateContent({
+          model: model,
+          contents: prompt
+        });
+        break; // Success!
+      } catch (err: any) {
+        lastError = err;
+      }
+    }
+
+    if (!response) {
+      throw lastError;
+    }
 
     return res.json({ feedback: response.text || defaultFeedback });
   } catch (err: any) {
