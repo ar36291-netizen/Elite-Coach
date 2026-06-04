@@ -105,7 +105,7 @@ export default function App() {
               if (data.beginnerMilestones !== undefined) setBeginnerMilestones(data.beginnerMilestones);
             } else {
               // Firebase missing or denied, fallback to local storage
-              const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
+              const cached = localStorage.getItem(`${LOCAL_STORAGE_KEY}_${currentUser.uid}`);
               if (cached) {
                 try {
                   const parsed = JSON.parse(cached);
@@ -130,7 +130,7 @@ export default function App() {
           } catch (err) {
             console.error("Firestore loading failure:", err);
             // Firebase threw an error (likely permission denied), fallback to local storage
-            const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
+            const cached = localStorage.getItem(`${LOCAL_STORAGE_KEY}_${currentUser.uid}`);
             if (cached) {
               try {
                 const parsed = JSON.parse(cached);
@@ -174,7 +174,7 @@ export default function App() {
       return () => unsubscribe();
     } else {
       // Offline fallback: Read sandbox local storage states
-      const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+      const raw = localStorage.getItem(`${LOCAL_STORAGE_KEY}_guest`);
       if (raw) {
         try {
           const parsed: any = JSON.parse(raw);
@@ -222,7 +222,8 @@ export default function App() {
         beginnerMilestones,
         lastPlannedDate: todayStr,
       };
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateObj));
+      const keySuffix = user ? user.uid : 'guest';
+      localStorage.setItem(`${LOCAL_STORAGE_KEY}_${keySuffix}`, JSON.stringify(stateObj));
     }
 
     if (isFirebaseConfigured && user) {
@@ -435,7 +436,8 @@ export default function App() {
   };
 
   const handleResetAll = async () => {
-    localStorage.removeItem(LOCAL_STORAGE_KEY);
+    const keySuffix = user ? user.uid : 'guest';
+    localStorage.removeItem(`${LOCAL_STORAGE_KEY}_${keySuffix}`);
     setOnboarding(initialOnboarding);
     setIsOnboarded(false);
     setPlan(null);
