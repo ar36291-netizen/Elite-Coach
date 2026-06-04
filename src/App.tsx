@@ -93,6 +93,7 @@ export default function App() {
               if (data.onboarding) setOnboarding(data.onboarding);
               if (data.isOnboarded !== undefined) setIsOnboarded(data.isOnboarded);
               if (data.plan) setPlan(data.plan);
+              if (data.apiSource) setApiSource(data.apiSource);
               if (data.dailyLogs) setDailyLogs(data.dailyLogs);
               if (data.streak !== undefined) setStreak(data.streak);
               if (data.selectedTab) setSelectedTab(data.selectedTab);
@@ -103,12 +104,28 @@ export default function App() {
               if (data.postpartumMode !== undefined) setPostpartumMode(data.postpartumMode);
               if (data.beginnerMilestones !== undefined) setBeginnerMilestones(data.beginnerMilestones);
             } else {
-              // Reset state to prompt onboarding for new remote credentials
-              setOnboarding(initialOnboarding);
-              setIsOnboarded(false);
-              setPlan(null);
-              setDailyLogs({});
-              setStreak(4);
+              // Firebase missing or denied, fallback to local storage
+              const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
+              if (cached) {
+                try {
+                  const parsed = JSON.parse(cached);
+                  if (parsed.onboarding) setOnboarding(parsed.onboarding);
+                  if (parsed.isOnboarded !== undefined) setIsOnboarded(parsed.isOnboarded);
+                  if (parsed.plan) setPlan(parsed.plan);
+                  if (parsed.dailyLogs) setDailyLogs(parsed.dailyLogs);
+                  if (parsed.streak !== undefined) setStreak(parsed.streak);
+                  if (parsed.selectedTab) setSelectedTab(parsed.selectedTab);
+                } catch (e) {
+                  console.error("Local storage fallback parsing error:", e);
+                }
+              } else {
+                // Reset state to prompt onboarding for new remote credentials
+                setOnboarding(initialOnboarding);
+                setIsOnboarded(false);
+                setPlan(null);
+                setDailyLogs({});
+                setStreak(4);
+              }
             }
           } catch (err) {
             console.error("Firestore loading failure:", err);
@@ -165,6 +182,27 @@ export default function App() {
     // Check if initial fetch operations are still processing to block write feedback loop
     if (isFetchingRef.current) return;
 
+    // ALWAYS backup to local storage in case Firebase permissions fail
+    if (isOnboarded) {
+      const stateObj: any = {
+        onboarding,
+        isOnboarded,
+        plan,
+        dailyLogs,
+        selectedTab,
+        selectedPlanType,
+        selectedWorkoutDay,
+        streak,
+        selectedHurdle,
+        cyclePhase,
+        pcosAwareness,
+        postpartumMode,
+        beginnerMilestones,
+        lastPlannedDate: todayStr,
+      };
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateObj));
+    }
+
     if (isFirebaseConfigured && user) {
       const userDocRef = doc(db, 'users', user.uid);
       setDoc(userDocRef, {
@@ -186,26 +224,6 @@ export default function App() {
       }, { merge: true }).catch((err) => {
         handleFirestoreError(err, OperationType.WRITE, 'users/' + user.uid);
       });
-    } else if (!isFirebaseConfigured && isOnboarded) {
-      // Local storage backup values for sandbox operations
-      const stateObj: any = {
-        currentStep: 1,
-        onboarding,
-        isOnboarded,
-        plan,
-        dailyLogs,
-        selectedTab,
-        selectedPlanType,
-        selectedWorkoutDay,
-        streak,
-        selectedHurdle,
-        cyclePhase,
-        pcosAwareness,
-        postpartumMode,
-        beginnerMilestones,
-        lastPlannedDate: todayStr,
-      };
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateObj));
     }
   }, [onboarding, isOnboarded, plan, dailyLogs, selectedTab, selectedPlanType, selectedWorkoutDay, streak, todayStr, user, selectedHurdle, cyclePhase, pcosAwareness, postpartumMode, beginnerMilestones]);
 
