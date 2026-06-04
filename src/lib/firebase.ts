@@ -9,15 +9,34 @@ import { getFirestore, Firestore, doc, getDocFromServer } from 'firebase/firesto
 import firebaseConfig from '../../firebase-applet-config.json';
 
 // Construct config with override from environment variables for production setups like Vercel
+// Detect sandbox domain to decide default config
+const isSandbox = typeof window !== 'undefined' && (
+  window.location.hostname.includes('run.app') || 
+  window.location.hostname === 'localhost' || 
+  window.location.hostname === '127.0.0.1'
+);
+
+// Fallback to their specific custom firebase config when not in the sandbox environment
+const customConfig = {
+  apiKey: "AIzaSyAwn5UE66sNrPpgWqIuDIm4qOlpyOQnU4Q",
+  authDomain: "elite-coach-629bd.firebaseapp.com",
+  projectId: "elite-coach-629bd",
+  firestoreDatabaseId: "(default)",
+  storageBucket: "elite-coach-629bd.firebasestorage.app",
+  messagingSenderId: "469211384646",
+  appId: "1:469211384646:web:99b477e154f5c96f73b347",
+  measurementId: "G-1WRYSSGW2L"
+};
+
 const activeConfig = {
-  apiKey: (import.meta as any).env.VITE_FIREBASE_API_KEY || firebaseConfig?.apiKey,
-  authDomain: (import.meta as any).env.VITE_FIREBASE_AUTH_DOMAIN || firebaseConfig?.authDomain,
-  projectId: (import.meta as any).env.VITE_FIREBASE_PROJECT_ID || firebaseConfig?.projectId,
-  firestoreDatabaseId: (import.meta as any).env.VITE_FIREBASE_FIRESTORE_DB_ID || (firebaseConfig as any)?.firestoreDatabaseId || '(default)',
-  storageBucket: (import.meta as any).env.VITE_FIREBASE_STORAGE_BUCKET || firebaseConfig?.storageBucket,
-  messagingSenderId: (import.meta as any).env.VITE_FIREBASE_MESSAGING_SENDER_ID || firebaseConfig?.messagingSenderId,
-  appId: (import.meta as any).env.VITE_FIREBASE_APP_ID || firebaseConfig?.appId,
-  measurementId: (import.meta as any).env.VITE_FIREBASE_MEASUREMENT_ID || firebaseConfig?.measurementId,
+  apiKey: (import.meta as any).env.VITE_FIREBASE_API_KEY || (!isSandbox ? customConfig.apiKey : firebaseConfig?.apiKey),
+  authDomain: (import.meta as any).env.VITE_FIREBASE_AUTH_DOMAIN || (!isSandbox ? customConfig.authDomain : firebaseConfig?.authDomain),
+  projectId: (import.meta as any).env.VITE_FIREBASE_PROJECT_ID || (!isSandbox ? customConfig.projectId : firebaseConfig?.projectId),
+  firestoreDatabaseId: (import.meta as any).env.VITE_FIREBASE_FIRESTORE_DB_ID || (!isSandbox ? customConfig.firestoreDatabaseId : ((firebaseConfig as any)?.firestoreDatabaseId || '(default)')),
+  storageBucket: (import.meta as any).env.VITE_FIREBASE_STORAGE_BUCKET || (!isSandbox ? customConfig.storageBucket : firebaseConfig?.storageBucket),
+  messagingSenderId: (import.meta as any).env.VITE_FIREBASE_MESSAGING_SENDER_ID || (!isSandbox ? customConfig.messagingSenderId : firebaseConfig?.messagingSenderId),
+  appId: (import.meta as any).env.VITE_FIREBASE_APP_ID || (!isSandbox ? customConfig.appId : firebaseConfig?.appId),
+  measurementId: (import.meta as any).env.VITE_FIREBASE_MEASUREMENT_ID || (!isSandbox ? customConfig.measurementId : firebaseConfig?.measurementId),
 };
 
 export const isFirebaseConfigured = 
