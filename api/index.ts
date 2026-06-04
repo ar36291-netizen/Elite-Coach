@@ -363,7 +363,7 @@ app.post("/api/generate-plan", async (req, res) => {
 
   const ai = getGenAI();
   if (!ai) {
-    // If Gemini key is missing or invalid, immediately return the scientifically derived fallback
+    localPlan.coachNote = "ERROR: GEMINI_API_KEY is missing or invalid in Vercel Environment Variables. " + localPlan.coachNote;
     return res.json({ plan: localPlan, source: "calculated" });
   }
 
@@ -463,10 +463,12 @@ app.post("/api/generate-plan", async (req, res) => {
       return res.json({ plan: parsedPlan, source: "gemini" });
     } else {
       console.warn("Gemini output structure was invalid, falling back to local model.");
+      localPlan.coachNote = "ERROR: Gemini returned invalid JSON structure. " + localPlan.coachNote;
       return res.json({ plan: localPlan, source: "calculated-fallback" });
     }
   } catch (err: any) {
     console.error("Gemini Plan Generation Error:", err);
+    localPlan.coachNote = "ERROR: Gemini API threw an exception: " + err.message + " | " + localPlan.coachNote;
     return res.json({ plan: localPlan, source: "error-fallback", error: err.message });
   }
 });
